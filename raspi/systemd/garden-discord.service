@@ -1,0 +1,17 @@
+[Unit]
+Description=Garden Irrigation Discord Bot
+After=network.target mosquitto.service
+Wants=mosquitto.service
+
+[Service]
+Type=simple
+User=bennet
+WorkingDirectory=/home/bennet/Gartenbewaesserung
+ExecStart=/usr/bin/python3 /home/bennet/Gartenbewaesserung/discord_bot.py
+Restart=always
+RestartSec=10
+StandardOutput=append:/home/bennet/Gartenbewaesserung/discord_bot.log
+StandardError=append:/home/bennet/Gartenbewaesserung/discord_bot.log
+
+[Install]
+WantedBy=multi-user.target

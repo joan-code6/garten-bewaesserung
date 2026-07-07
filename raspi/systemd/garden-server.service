@@ -1,0 +1,17 @@
+[Unit]
+Description=Garden Irrigation Web Server
+After=network.target mosquitto.service
+Wants=mosquitto.service
+
+[Service]
+Type=simple
+User=bennet
+WorkingDirectory=/home/bennet/Gartenbewaesserung
+ExecStart=/usr/bin/python3 /home/bennet/Gartenbewaesserung/server.py
+Restart=always
+RestartSec=5
+StandardOutput=append:/home/bennet/Gartenbewaesserung/server.log
+StandardError=append:/home/bennet/Gartenbewaesserung/server.log
+
+[Install]
+WantedBy=multi-user.target

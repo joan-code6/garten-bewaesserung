@@ -1,0 +1,15 @@
+[Unit]
+Description=Cloudflare Tunnel - Garden Irrigation
+After=network.target garden-server.service
+Wants=garden-server.service
+
+[Service]
+Type=notify
+User=bennet
+ExecStart=/usr/local/bin/cloudflared tunnel --config /home/bennet/.cloudflared/config.yml run
+Restart=always
+RestartSec=5
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target

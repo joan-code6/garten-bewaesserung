@@ -1,0 +1,51 @@
+# Secrets — never commit live config or databases
+raspi/config.yaml
+raspi/garden.db
+*.db
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.ruff_cache/
+
+# PlatformIO build artifacts
+.pio/
+
+# Playwright MCP test artifacts
+.playwright-mcp/
+
+# Logs
+*.log
+
+# Debug/test output files (root)
+boot1.txt
+br.txt
+check.txt
+espboot.txt
+final_log.txt
+gpio0.txt
+gpio0_test.txt
+gpio1.txt
+gpio1_test.txt
+off_all.txt
+off_log.txt
+recover.txt
+state.txt
+state1.txt
+verify.txt
+
+# Screenshots
+dashboard.png
+mobile-dashboard.png
+
+# Dev machine scripts
+deep.ps1
+q.ps1
+
+# Windows artifact
+nul
+
+# OS files
+.DS_Store
+Thumbs.db

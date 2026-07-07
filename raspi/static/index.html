@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gartenbewässerung</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<!-- ═══════════════ TOP BAR ═══════════════ -->
+<div class="app" id="app">
+<header class="topbar">
+  <div class="topbar-brand">
+    <span class="dot" id="status-dot"></span>
+    <span>Gartenbewässerung</span>
+  </div>
+  <nav class="topbar-nav" id="nav">
+    <button data-page="dashboard" class="active">Ventile</button>
+    <button data-page="schedules">Zeitpläne</button>
+    <button data-page="history">Verlauf</button>
+  </nav>
+  <div class="topbar-status">
+    Uptime: <span id="uptime">--</span>
+    <button class="btn btn-sm" style="margin-left:.5rem" onclick="logout()">Logout</button>
+  </div>
+</header>
+
+<main class="main">
+
+<!-- ═══════════════ DASHBOARD ═══════════════ -->
+<section class="page active" id="page-dashboard">
+  <div class="section-header">
+    <h2>Ventil Steuerung</h2>
+    <button class="btn btn-sm" onclick="refreshRelays()" title="Aktualisieren">↻</button>
+  </div>
+  <div class="relay-grid" id="relay-grid">
+    <div class="empty"><div class="spinner"></div></div>
+  </div>
+</section>
+
+<!-- ═══════════════ SCHEDULES ═══════════════ -->
+<section class="page" id="page-schedules">
+  <div class="section-header">
+    <h2>Zeitpläne</h2>
+    <button class="btn btn-primary btn-sm" onclick="openScheduleModal()">+ Neuer Zeitplan</button>
+  </div>
+  <div class="schedule-list" id="schedule-list">
+    <div class="empty"><div class="spinner"></div></div>
+  </div>
+</section>
+
+<!-- ═══════════════ HISTORY ═══════════════ -->
+<section class="page" id="page-history">
+  <div class="section-header"><h2>Verlauf</h2></div>
+  <div class="history-list" id="history-list">
+    <div class="empty"><div class="spinner"></div></div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<!-- ═══════════════ SCHEDULE MODAL ═══════════════ -->
+<div class="modal-overlay" id="modal-overlay">
+<div class="modal" id="modal">
+  <h3 id="modal-title">Zeitplan</h3>
+
+  <label>Name</label>
+  <input type="text" id="sched-name" placeholder="z.B. Abendbewässerung">
+
+  <label>Beschreibung</label>
+  <input type="text" id="sched-desc" placeholder="Optional">
+
+  <label>Cron-Ausdruck</label>
+  <input type="text" id="sched-cron" placeholder="0 20 * * *" value="0 20 * * *" oninput="previewCron()">
+  <div id="cron-preview" style="font-size:.82rem;color:var(--accent);margin-bottom:.4rem;min-height:1.2em"></div>
+  <details style="font-size:.72rem;color:var(--text-dim);margin-bottom:.5rem">
+    <summary style="cursor:pointer">Format-Hilfe</summary>
+    <div style="padding:.3rem 0;line-height:1.5">
+      <code>Minute Stunde Tag Monat Wochentag</code><br>
+      <code>0 20 * * *</code> = Täglich 20:00<br>
+      <code>0 6 * * 1-5</code> = Mo–Fr 06:00<br>
+      <code>30 8 1 * *</code> = Jeden 1. um 08:30<br>
+      <code>0 18 * * 0,3</code> = So + Mi 18:00<br>
+      Nutze <a href="https://crontab.guru" target="_blank" style="color:var(--accent)">crontab.guru</a> zum Testen
+    </div>
+  </details>
+
+  <label>Aktiviert</label>
+  <label class="toggle-wrap" style="margin-bottom:.5rem">
+    <span class="toggle"><input type="checkbox" id="sched-enabled" checked><span class="toggle-track"></span><span class="toggle-thumb"></span></span>
+    <span style="font-size:.82rem;color:var(--text-dim)">Zeitplan ist aktiv</span>
+  </label>
+
+  <label>Schritte</label>
+  <div id="step-list"></div>
+  <button class="btn btn-sm" onclick="addStep()" style="margin-top:.3rem">+ Schritt hinzufügen</button>
+
+  <div class="modal-actions">
+    <button class="btn" id="modal-delete-btn" style="display:none;margin-right:auto" onclick="deleteScheduleFromModal()">Löschen</button>
+    <button class="btn" onclick="closeModal()">Abbrechen</button>
+    <button class="btn btn-primary" onclick="saveSchedule()">Speichern</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════ TOAST ═══════════════ -->
+<div class="toast-container" id="toasts"></div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>

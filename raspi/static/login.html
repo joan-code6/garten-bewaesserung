@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gartenbewässerung</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="login-page">
+
+<div class="login-card" id="login-card">
+  <h1>🌿 Gartenbewässerung</h1>
+  <p id="login-message">Zugriff wird geprüft...</p>
+  <div id="gateway-content" style="display:none">
+    <div class="gateway-section" id="gw-authorized" style="display:none">
+      <h3>✅ Zugriff erlaubt</h3>
+      <p style="text-align:center"><span class="spinner"></span> Leite zum Dashboard weiter...</p>
+    </div>
+
+    <div class="gateway-section" id="gw-local">
+      <h3>🏠 Lokales Netzwerk</h3>
+      <p>Öffne diese Adresse direkt im Heimnetzwerk:</p>
+      <code class="gateway-url">http://192.168.178.55:8000</code>
+      <p class="gateway-note">Kein Passwort nötig — automatische Erkennung.</p>
+    </div>
+
+    <div class="gateway-section" id="gw-discord">
+      <h3>🌐 Externer Zugriff via Discord</h3>
+      <p>Nutze den <code>/verify</code> Befehl beim GartenBot auf Discord:</p>
+      <ol>
+        <li>Schreibe <code>/verify</code> im Discord</li>
+        <li>Klicke auf den erhaltenen Einmal-Link</li>
+        <li>Deine IP wird für 30 Tage freigeschaltet</li>
+      </ol>
+    </div>
+
+    <p class="gateway-ip" id="gateway-ip"></p>
+  </div>
+</div>
+
+<script>
+async function checkLocal() {
+  var msg = document.getElementById('login-message');
+  var gw = document.getElementById('gateway-content');
+
+  try {
+    var r = await fetch('/api/auth/check');
+    var data = await r.json();
+    document.getElementById('gateway-ip').textContent = 'Deine IP: ' + data.ip;
+
+    if (data.local || data.allowlisted) {
+      msg.textContent = 'Zugriff erlaubt';
+      gw.style.display = 'block';
+      document.getElementById('gw-authorized').style.display = 'block';
+      document.getElementById('gw-local').style.display = 'none';
+      document.getElementById('gw-discord').style.display = 'none';
+
+      // Get a portable JWT so /app works even if IP rotates
+      try {
+        var tr = await fetch('/api/auth/gateway-token');
+        var td = await tr.json();
+        localStorage.setItem('garden_token', td.token);
+      } catch (e) {}
+
+      // Redirect to dashboard with the JWT in localStorage
+      setTimeout(function() { window.location.href = '/app'; }, 300);
+      return;
+    }
+  } catch (e) {
+    msg.textContent = 'Server nicht erreichbar';
+    return;
+  }
+
+  msg.textContent = 'Zugriff benötigt';
+  gw.style.display = 'block';
+}
+
+checkLocal();
+</script>
+</body>
+</html>
