@@ -1,84 +1,86 @@
 # Garden Irrigation System
 
-Automated garden irrigation controlled by an ESP32-C3, Raspberry Pi, MQTT, and a web dashboard.
+This project waters my garden automatically. It uses an ESP32-C3, a Raspberry Pi, MQTT, and a web dashboard.
 
-## Overview
+# Reviewer Instructions
 
-- **ESP32-C3-DevKitM-1** with 5-channel relay module controlling garden valves
-- **Raspberry Pi** running Mosquitto MQTT broker, FastAPI web server, and USB-MQTT bridge
-- **Web Dashboard** with real-time relay control, scheduling, and history
-- **Discord Bot** for remote control and monitoring via slash commands
-- **APScheduler** for cron-triggered watering schedules
-- **Cloudflare Tunnel** for secure external access
+Use the Discord invite link you received to join the server. Run the `/verify` command it will give you a URL. Click that URL it grants you access to my network so you can see the dashboard.
 
-## Structure
+**These valves control real water in my garden. Dont fuck with them.** Look dont touch. Flipping a valve on will actually soak my plants or flood my yard. Just observe.
 
-```
-├── esp32_relay_test/     # PlatformIO project — ESP32 firmware v5
-│   ├── src/main.ino      # Active firmware (dynamic GPIO, USB serial)
-│   ├── src/bridge/       # ESP-NOW to MQTT bridge (legacy)
-│   ├── src/garden/       # ESP-NOW garden node (legacy)
-│   └── platformio.ini
-├── raspi/                # Raspberry Pi server code
-│   ├── garden.py         # MQTT client library + CLI
-│   ├── server.py         # FastAPI web server + scheduler
-│   ├── discord_bot.py    # Discord bot with slash commands
-│   ├── scheduler.py      # APScheduler watering engine
-│   ├── database.py       # SQLite layer
-│   ├── auth.py           # JWT + IP authentication
-│   ├── config.py         # Configuration loader
-│   ├── config.example.yaml  # Configuration template
-│   ├── requirements.txt  # Python dependencies
-│   ├── static/           # Web frontend (SPA)
-│   ├── systemd/          # Systemd service units
-│   └── deploy.sh         # Deploy from dev machine to Pi
-└── AGENTS.md             # Full system reference
-```
+# How to Use
 
-## Hardware
+The dashboard is at [https://garten-bewaesserung.joancode.dev/](https://garten-bewaesserung.joancode.dev/). From there you can flip relays, set schedules, and see the history.
 
-- **ESP32-C3-DevKitM-1** (RISC-V microcontroller)
-- **5-channel Relay Module** (active high, GPIO 1-5)
-- **Raspberry Pi** (any model with USB)
-- 5 magnetic valves (24V AC)
-
-## Quick Start
-
-### ESP32 Firmware
+If you want CLI access, SSH into the Pi and use garden.py:
 
 ```bash
-cd esp32_relay_test
-pio run
-# Flash via the Pi's USB port (see AGENTS.md for detailed instructions)
+python3 garden.py on 1
+python3 garden.py off 1
+python3 garden.py status
+python3 garden.py watch
 ```
 
-### Raspberry Pi Setup
+To use the Discord bot, just run the slash commands in your server. `/water` to control relays, `/verify` to get web access from outside.
 
-Copy `config.example.yaml` to `config.yaml`, fill in your secrets, then:
+# Hardware
+
+- ESP32-C3-DevKitM-1 with a 5 channel relay module
+- Raspberry Pi (any model with USB)
+- 5 magnetic valves, 24V AC
+
+The ESP connects to the Pi over USB serial. The Pi runs Mosquitto as the MQTT broker and a Python bridge that forwards MQTT messages to the ESP.
+
+# Scripts
+
+## garden.py
 
 ```bash
-cd raspi
-pip3 install -r requirements.txt
-python3 server.py
+from garden import GardenController
 ```
 
-Or for a full install with systemd:
+This is the MQTT client library. Import it in your own scripts to control relays, get status, or subscribe to events. Also works as a CLI.
 
-```bash
-bash install.sh
+## server.py
+
+```python
+from server import app
 ```
 
-### Configuration
+This is the FastAPI web server. It serves the dashboard, handles the schedule engine, and hosts the API endpoints for everything from relay control to Google Home.
 
-See `raspi/config.example.yaml` for all options. Key sections:
+## discord_bot.py
 
-- `broker` — MQTT settings
-- `web` — server host/port and public URL
-- `auth` — JWT secret, admin credentials
-- `discord` — bot token, webhook URL, alert user ID
-- `pins` — GPIO to descriptive name mapping
-- `database` — SQLite path
+This is a Discord bot with slash commands. You can turn relays on and off, check status, list schedules, and run a schedule right now. The `/verify` command generates a one-time link that gives you 30 days of web access from your current IP.
 
-## License
+## scheduler.py
+
+```python
+from scheduler import ScheduleEngine
+```
+
+This handles automated watering. It uses APScheduler and loads your schedules from the SQLite database. Before each run it checks the weather and skips if its raining or freezing.
+
+## weather.py
+
+```python
+from weather import check_weather
+```
+
+Checks Open-Meteo before scheduled waterings. It will skip the watering if it rained recently, rain is forecast, or the temperature is below 2 degrees Celsius. After 3 skips in a row it forces the run anyway so nothing dries out.
+
+## database.py
+
+```python
+from database import Database
+```
+
+SQLite wrapper for schedules and action history. Auto initializes on first import.
+
+# Configuration
+
+Copy `config.example.yaml` to `config.yaml`. The important sections are `broker` for MQTT, `web` for the server, `auth` for login, `discord` for the bot, `pins` for relay labels, and `weather` for skip rules.
+
+# License
 
 MIT
