@@ -1,6 +1,7 @@
 # Garden Irrigation System
 
 This project waters my garden automatically. It uses an ESP32-C3, a Raspberry Pi, MQTT, and a web dashboard.
+<img width="1910" height="995" alt="Screenshot 2026-07-02 111621" src="https://github.com/user-attachments/assets/e3042606-9df2-442a-9820-a1ffd7f843f0" />
 
 # Reviewer Instructions
 
@@ -80,6 +81,10 @@ SQLite wrapper for schedules and action history. Auto initializes on first impor
 # Configuration
 
 Copy `config.example.yaml` to `config.yaml`. The important sections are `broker` for MQTT, `web` for the server, `auth` for login, `discord` for the bot, `pins` for relay labels, and `weather` for skip rules.
+
+## AI Decleration
+I use AI heavily but not irresponsibly!
+I do not VibeCode as i review all code, have a good understanding of the projects structure and decide over the main aspects of the project.
 
 # License
 
